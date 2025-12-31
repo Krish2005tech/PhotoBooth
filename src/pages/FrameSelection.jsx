@@ -7,24 +7,28 @@ export default function FrameSelection() {
   const [mode, setMode] = useState("color")
 
   return (
-    <div style={{ padding: 40 }}>
-      <h2>Select Frame</h2>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-gray-100">
+      <h1 className="text-2xl font-semibold">Frame Selection</h1>
 
-      <label>Aspect Ratio</label>
-      <select value={ratio} onChange={e => setRatio(e.target.value)}>
-        <option value="4:3">4:3</option>
-        <option value="3:4">3:4</option>
-      </select>
+      <div className="flex flex-col gap-4">
+        <select
+          className="px-4 py-2 rounded border"
+          value={ratio}
+          onChange={e => setRatio(e.target.value)}
+        >
+          <option value="4:3">4 : 3</option>
+          <option value="3:4">3 : 4</option>
+        </select>
 
-      <br /><br />
-
-      <label>Mode</label>
-      <select value={mode} onChange={e => setMode(e.target.value)}>
-        <option value="color">Color</option>
-        <option value="bw">Black & White</option>
-      </select>
-
-      <br /><br />
+        <select
+          className="px-4 py-2 rounded border"
+          value={mode}
+          onChange={e => setMode(e.target.value)}
+        >
+          <option value="color">Color</option>
+          <option value="bw">Black & White</option>
+        </select>
+      </div>
 
       <button
         onClick={() =>
@@ -32,6 +36,7 @@ export default function FrameSelection() {
             state: { ratio, mode }
           })
         }
+        className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800"
       >
         Next
       </button>

@@ -7,15 +7,15 @@ export default function TakePicture() {
   const navigate = useNavigate()
   const { state } = useLocation()
 
-  const [stream, setStream] = useState(null)
-  const [countdown, setCountdown] = useState(null)
-  const [flash, setFlash] = useState(false)
-
   const ratio = state?.ratio || "4:3"
   const mode = state?.mode || "color"
 
   const width = ratio === "4:3" ? 400 : 300
   const height = ratio === "4:3" ? 300 : 400
+
+  const [stream, setStream] = useState(null)
+  const [countdown, setCountdown] = useState(null)
+  const [flash, setFlash] = useState(false)
 
   async function startCamera() {
     const s = await navigator.mediaDevices.getUserMedia({ video: true })
@@ -36,19 +36,40 @@ export default function TakePicture() {
         setCountdown(null)
 
         setFlash(true)
-        setTimeout(() => setFlash(false), 100)
+        setTimeout(() => setFlash(false), 320)
 
+        const video = videoRef.current
         const canvas = canvasRef.current
         const ctx = canvas.getContext("2d")
 
-        if (mode === "bw") {
-          ctx.filter = "grayscale(100%)"
+        const vw = video.videoWidth
+        const vh = video.videoHeight
+        const targetRatio = width / height
+        const videoRatio = vw / vh
+
+        let sx, sy, sw, sh
+
+        if (videoRatio > targetRatio) {
+          sh = vh
+          sw = sh * targetRatio
+          sx = (vw - sw) / 2
+          sy = 0
+        } else {
+          sw = vw
+          sh = sw / targetRatio
+          sx = 0
+          sy = (vh - sh) / 2
         }
 
-        ctx.drawImage(videoRef.current, 0, 0, width, height)
+        ctx.filter = mode === "bw" ? "grayscale(100%)" : "none"
+
+        ctx.drawImage(
+          video,
+          sx, sy, sw, sh,
+          0, 0, width, height
+        )
 
         const image = canvas.toDataURL("image/png")
-
         navigate("/strip", { state: { image } })
       }
     }, 1000)
@@ -61,56 +82,48 @@ export default function TakePicture() {
   }, [stream])
 
   return (
-    <div style={{ textAlign: "center", marginTop: 40 }}>
-      <button onClick={startCamera}>Enable Camera</button>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 gap-4">
+      <button
+        onClick={startCamera}
+        className="px-4 py-2 bg-black text-white rounded-lg"
+      >
+        Enable Camera
+      </button>
 
       <div
-        style={{
-          width,
-          height,
-          margin: "20px auto",
-          position: "relative",
-          background: "#000"
-        }}
+        className="relative overflow-hidden bg-black rounded-lg"
+        style={{ width, height }}
       >
         <video
           ref={videoRef}
           autoPlay
           playsInline
-          width={width}
-          height={height}
+          className="w-full h-full object-cover"
         />
 
         {countdown && (
-          <div style={{
-            position: "absolute",
-            inset: 0,
-            color: "white",
-            fontSize: 60,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}>
+          <div className="absolute inset-0 flex items-center justify-center text-white text-6xl font-bold bg-black/40">
             {countdown}
           </div>
         )}
 
         {flash && (
-          <div style={{
-            position: "absolute",
-            inset: 0,
-            background: "white"
-          }} />
+          <div className="absolute inset-0 bg-white" />
         )}
       </div>
 
-      <button onClick={capturePhoto}>📸 Click</button>
+      <button
+        onClick={capturePhoto}
+        className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800"
+      >
+        📸 Click
+      </button>
 
       <canvas
         ref={canvasRef}
         width={width}
         height={height}
-        style={{ display: "none" }}
+        className="hidden"
       />
     </div>
   )

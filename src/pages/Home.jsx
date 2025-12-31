@@ -4,8 +4,11 @@ export default function Home() {
   const navigate = useNavigate()
 
   return (
-    <div style={{ textAlign: "center", marginTop: "40vh" }}>
-      <button onClick={() => navigate("/frameselection")}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <button
+        onClick={() => navigate("/frameselection")}
+        className="px-8 py-4 text-lg bg-black text-white rounded-xl hover:bg-gray-800 transition"
+      >
         Enter Photobooth
       </button>
     </div>
